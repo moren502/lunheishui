@@ -1,1 +1,3421 @@
-# lunheishui
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>论黑水 - 自由交流社区</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --bg-input: #2d2d2d;
+            --text-primary: #f0f0f0;
+            --text-secondary: #b0b0b0;
+            --accent: #bb86fc;
+            --accent-dark: #3700b3;
+            --success: #03dac6;
+            --warning: #cf6679;
+            --danger: #ff4d4d;
+            --border: #333;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            
+            --level-1: #4CAF50;
+            --level-2: #2196F3;
+            --level-3: #9C27B0;
+            --level-4: #FF9800;
+            --level-5: #F44336;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image: linear-gradient(to bottom, rgba(18, 18, 18, 0.9), rgba(30, 30, 30, 0.8)), 
+                              url('https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* 黑色雨滴效果 */
+        #rainCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        /* 水波纹效果 */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.3);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        header {
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: linear-gradient(45deg, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .logo i {
+            color: var(--accent);
+            font-size: 2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+        
+        .nav-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            position: relative;
+            opacity: 0.9;
+        }
+        
+        .nav-links a:hover {
+            opacity: 1;
+            color: var(--accent);
+        }
+        
+        .nav-links a.active {
+            color: var(--accent);
+            opacity: 1;
+        }
+        
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--accent);
+            border-radius: 3px;
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 15px;
+            border-radius: 50px;
+            background: rgba(187, 134, 252, 0.1);
+            border: 1px solid rgba(187, 134, 252, 0.3);
+            position: relative;
+        }
+        
+        .admin-badge {
+            background: var(--warning);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .level-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .level-1 { background: var(--level-1); }
+        .level-2 { background: var(--level-2); }
+        .level-3 { background: var(--level-3); }
+        .level-4 { background: var(--level-4); }
+        .level-5 { background: var(--level-5); }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+            transform: translateZ(0);
+            outline: none;
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .btn:hover::after {
+            opacity: 1;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg-dark);
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(187, 134, 252, 0.4);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--accent);
+            color: var(--bg-dark);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #cc0000;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: var(--bg-dark);
+        }
+        
+        .btn-success:hover {
+            background: #00b3a0;
+        }
+
+        main {
+            padding: 40px 0;
+            min-height: calc(100vh - 200px);
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: var(--text-primary);
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            border-radius: 2px;
+        }
+
+        .topics-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .topic-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            position: relative;
+        }
+        
+        .topic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.6);
+            border-color: var(--accent);
+        }
+        
+        .topic-header {
+            padding: 20px;
+            background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+            color: white;
+        }
+        
+        .topic-title {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .topic-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .topic-content {
+            padding: 20px;
+            color: var(--text-secondary);
+        }
+        
+        .topic-stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: rgba(40, 40, 40, 0.5);
+            border-top: 1px solid var(--border);
+        }
+        
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        
+        .stat:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat i {
+            font-size: 1.1rem;
+        }
+        
+        /* 创建话题表单 */
+        .create-topic-form {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            color: var(--text-primary);
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.2);
+        }
+        
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .topic-detail {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+        
+        .topic-detail-header {
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 25px;
+        }
+        
+        .topic-detail-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+        
+        .topic-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--accent), var(--success));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-dark);
+            font-weight: bold;
+        }
+        
+        .topic-content {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+        
+        .topic-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-icon {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-primary);
+        }
+        
+        .btn-icon:hover {
+            background: rgba(187, 134, 252, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .comments-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        
+        .comment-form {
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .comment-card {
+            background: rgba(40, 40, 40, 0.5);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        
+        .comment-card:hover {
+            border-color: var(--accent);
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .comment-time {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .comment-content {
+            line-height: 1.7;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+        }
+        
+        .comment-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+        
+        .like-btn:hover {
+            color: var(--danger);
+        }
+        
+        .like-btn.active {
+            color: var(--danger);
+        }
+        
+        .report-btn:hover {
+            color: var(--warning);
+        }
+
+        .auth-container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .auth-tab {
+            padding: 12px 25px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+        
+        .auth-tab.active {
+            color: var(--accent);
+            border-bottom: 3px solid var(--accent);
+            margin-bottom: -2px;
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+
+        footer {
+            background: rgba(30, 30, 30, 0.95);
+            color: var(--text-primary);
+            padding: 40px 0 20px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-section {
+            flex: 1;
+            padding: 0 20px;
+            min-width: 250px;
+        }
+        
+        .footer-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--accent);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .topics-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .nav-links {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .user-actions {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .hidden {
+            display: none;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-20 {
+            margin-top: 20px;
+        }
+        
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+
+        .vote-container {
+            background: rgba(40, 40, 40, 0.5);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid var(--border);
+        }
+        
+        .vote-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+        
+        .vote-option {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background: var(--bg-input);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+        
+        .vote-progress {
+            height: 10px;
+            background: var(--border);
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .vote-bar {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        .vote-count {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .report-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .report-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .report-content {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--accent);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .report-modal.active .report-content {
+            transform: translateY(0);
+        }
+        
+        .report-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .captcha-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .captcha-input {
+            flex: 1;
+        }
+        
+        .captcha-display {
+            font-family: monospace;
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            background: linear-gradient(45deg, #ff7e5f, #feb47b);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .refresh-captcha {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .update-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent-dark);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .update-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .update-notification i {
+            font-size: 1.2rem;
+        }
+
+        .report-limit {
+            color: var(--warning);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .privacy-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .privacy-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .privacy-content {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--accent);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .privacy-modal.active .privacy-content {
+            transform: translateY(0);
+        }
+        
+        .privacy-content h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+        
+        .privacy-content h3 {
+            margin: 20px 0 10px;
+            color: var(--success);
+        }
+        
+        .privacy-content p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .privacy-content ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .privacy-content li {
+            margin-bottom: 10px;
+        }
+
+        .submission-form {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+        }
+
+        .page-content {
+            display: none;
+        }
+        
+        .page-content.active {
+            display: block;
+        }
+
+        .checkin-btn {
+            background: linear-gradient(45deg, var(--accent), var(--success));
+            color: var(--bg-dark);
+            font-weight: bold;
+        }
+        
+        .checkin-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .close-modal:hover {
+            color: var(--accent);
+        }
+
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .profile-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--accent), var(--success));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+        }
+        
+        .profile-info {
+            flex: 1;
+        }
+        
+        .profile-name {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .profile-level {
+            font-size: 0.9rem;
+            padding: 3px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+        
+        .profile-stats {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .profile-contact {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .contact-item {
+            background: rgba(40, 40, 40, 0.5);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .profile-section {
+            margin-top: 25px;
+        }
+        
+        .profile-section-title {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .profile-signature {
+            background: rgba(40, 40, 40, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+        
+        .no-signature {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        .user-topics-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .user-topic-card {
+            background: rgba(40, 40, 40, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+        }
+        
+        .user-topic-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+        
+        .user-topic-title {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--accent);
+        }
+        
+        .user-topic-content {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .user-topic-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .progress-container {
+            margin-top: 15px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 4px;
+            width: 0;
+            transition: width 1s ease;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(187, 134, 252, 0.3);
+        }
+        
+        .btn-outline:hover {
+            box-shadow: 0 5px 15px rgba(187, 134, 252, 0.2);
+        }
+        
+        .nav-link {
+            transition: transform 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            transform: translateY(-2px);
+        }
+        
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .topic-card:hover .topic-title {
+            color: var(--accent);
+        }
+        
+        @keyframes progress {
+            from { width: 0; }
+            to { width: var(--progress-width); }
+        }
+        
+        /* 随机名言 */
+        .quote-container {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            background: rgba(30, 30, 30, 0.5);
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .quote-text {
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        
+        .quote-author {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        /* 主题切换按钮 */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            border: 1px solid var(--border);
+        }
+        
+        .theme-toggle i {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+        
+        /* 新增样式 */
+        .sync-status {
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+            padding: 8px 15px;
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+        }
+        
+        .sync-status .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+        
+        .sync-status.syncing .indicator {
+            background: var(--warning);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--accent);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .deployment-guide {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 1px solid var(--border);
+        }
+        
+        .guide-step {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .guide-step:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .guide-step h3 {
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .guide-step code {
+            background: rgba(40, 40, 40, 0.5);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            display: inline-block;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- 黑色雨滴效果 -->
+    <canvas id="rainCanvas"></canvas>
+    
+    <!-- 主题切换按钮 -->
+    <div class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </div>
+    
+    <!-- 同步状态指示器 -->
+    <div class="sync-status" id="syncStatus">
+        <div class="indicator"></div>
+        <span>数据已同步</span>
+    </div>
+    
+    <!--论黑水 网站原作者默认（陆韵伦）盗用源码死全家-->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-comment-dots"></i>
+                <h1>【论黑水】</h1>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active" data-page="home">首页</a>
+                <a href="#" class="nav-link" data-page="popular">热门</a>
+                <a href="#" class="nav-link" data-page="discover">发现</a>
+                <a href="#" class="nav-link" data-page="topics">话题</a>
+                <a href="#" class="nav-link" data-page="profile">我的</a>
+                <a href="#" class="nav-link" data-page="about">关于</a>
+                <a href="#" class="nav-link" data-page="deploy">部署指南</a>
+            </div>
+            <div class="user-actions" id="userActions">
+                <button class="btn btn-outline" id="loginBtn">登录</button>
+                <button class="btn btn-primary" id="registerBtn">注册</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 实时更新通知 -->
+    <div class="update-notification" id="updateNotification">
+        <i class="fas fa-sync-alt"></i>
+        <span id="notificationText">有新内容更新！</span>
+    </div>
+
+    <!-- 主要内容区 -->
+    <main class="container">
+        <!-- 首页内容 -->
+        <section id="home-page" class="page-content active">
+            <!-- 欢迎区域 -->
+            <div class="welcome-section mb-20">
+                <h2 class="section-title">欢迎来到并加入论黑水社区</h2>
+                <p>自由交流，分享观点，发现有趣话题。加入我们的社区，与志同道合和意志一致的人一起讨论。</p>
+                
+                <div class="create-topic-form fade-in" id="createTopicForm">
+                    <h3>创建新话题</h3>
+                    <div class="form-group">
+                        <label for="topicTitle">话题标题</label>
+                        <input type="text" id="topicTitle" class="form-control" placeholder="请输入话题标题">
+                    </div>
+                    <div class="form-group">
+                        <label for="topicContent">话题内容</label>
+                        <textarea id="topicContent" class="form-control" placeholder="详细描述您的话题..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" id="publishTopicBtn">发布话题</button>
+                </div>
+            </div>
+
+            <!-- 随机名言 -->
+            <div class="quote-container fade-in" id="quoteContainer">
+                <div class="quote-text" id="quoteText">"思想的力量在于分享，而非独占"</div>
+                <div class="quote-author" id="quoteAuthor">- 论黑水社区</div>
+            </div>
+
+            <!-- 话题列表 -->
+            <section class="topics-section">
+                <h2 class="section-title">最新话题</h2>
+                <div class="topics-container" id="topicsContainer">
+                    <!-- 话题将通过JS动态生成 -->
+                </div>
+            </section>
+        </section>
+        
+        <!-- 热门页面 -->
+        <section id="popular-page" class="page-content">
+            <h2 class="section-title">热门内容</h2>
+            <div class="topics-container" id="popularTopicsContainer">
+                <!-- 热门话题将通过JS动态生成 -->
+            </div>
+        </section>
+        
+        <!-- 发现页面 -->
+        <section id="discover-page" class="page-content">
+            <h2 class="section-title">发现</h2>
+            <div class="topics-container" id="discoverTopicsContainer">
+                <!-- 官方更新和通告将通过JS动态生成 -->
+            </div>
+        </section>
+        
+        <!-- 话题页面 -->
+        <section id="topics-page" class="page-content">
+            <h2 class="section-title">所有话题</h2>
+            <div class="topics-container" id="allTopicsContainer">
+                <!-- 所有话题将通过JS动态生成 -->
+            </div>
+        </section>
+        
+        <!-- 我的页面 -->
+        <section id="profile-page" class="page-content">
+            <div class="profile-container">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar" id="profileAvatar">U</div>
+                        <div class="profile-info">
+                            <div class="profile-name">
+                                <span id="profileUsername">游客</span>
+                                <span class="profile-level level-3" id="profileLevel">达人 Lv.3</span>
+                            </div>
+                            <div class="profile-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="topicCount">0</div>
+                                    <div class="stat-label">话题</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="commentCount">0</div>
+                                    <div class="stat-label">评论</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="likeCount">0</div>
+                                    <div class="stat-label">获赞</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="expValue">0</div>
+                                    <div class="stat-label">经验值</div>
+                                </div>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="expProgress"></div>
+                                </div>
+                                <div class="progress-text">
+                                    <span>Lv.3</span>
+                                    <span>Lv.4</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h3 class="profile-section-title">个人签名</h3>
+                        <div class="profile-signature" id="profileSignature">
+                            这个人很懒，还没有编写自己的签名...
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h3 class="profile-section-title">密保手机号</h3>
+                        <div class="profile-contact">
+                            <div class="contact-item">
+                                <i class="fas fa-envelope"></i> <span id="profileEmail">未设置</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-phone"></i> <span id="profilePhone">138****5678</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-card">
+                    <h2 class="profile-section-title">我的话题</h2>
+                    <div class="user-topics-container" id="userTopicsContainer">
+                        <!-- 用户话题将通过JS动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 投稿页面 -->
+        <section id="submission-page" class="page-content">
+            <h2 class="section-title">投稿建议</h2>
+            <div class="submission-form">
+                <div class="form-group">
+                    <label for="submissionTitle">投稿标题</label>
+                    <input type="text" id="submissionTitle" class="form-control" placeholder="输入投稿标题">
+                </div>
+                <div class="form-group">
+                    <label for="submissionContent">投稿内容</label>
+                    <textarea id="submissionContent" class="form-control" placeholder="详细描述您的投稿内容..." rows="8"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="submissionImage">上传图片（可选）</label>
+                    <input type="file" id="submissionImage" class="form-control" accept="image/*">
+                </div>
+                <button class="btn btn-primary" id="submitSubmissionBtn">提交投稿</button>
+            </div>
+        </section>
+        
+        <!-- 关于页面 -->
+        <section id="about-page" class="page-content">
+            <h2 class="section-title">关于论黑水</h2>
+            <div class="topic-card">
+                <div class="topic-content">
+                    <p>论黑水是一个开放、自由的交流平台，致力于为用户提供高质量的讨论环境。在这里，您可以分享观点、交流思想、结交志同道合的朋友。</p>
+                    <p>黑水成立于2018年，由一群热爱自由交流的互联网爱好者共同创建。我们相信，在绝对的武力前提下，每个人都应该有自由表达的权利和对你表示友好的性格</p>
+                    <h3>社区价值观</h3>
+                    <ul>
+                        <li>尊重：尊重他人的观点，即使您不同意</li>
+                        <li>包容：接纳不同的思想和文化背景</li>
+                        <li>真实：鼓励真实、有深度的讨论</li>
+                        <li>成长：通过交流促进个人和社区的成长</li>
+                    </ul>
+                    <h3>加入我们</h3>
+                    <p>无论您是寻求帮助、分享知识，还是寻找志同道合的朋友，论黑水社区都欢迎您的加入。</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 部署指南页面 -->
+        <section id="deploy-page" class="page-content">
+            <h2 class="section-title">部署指南</h2>
+            <div class="deployment-guide">
+                <div class="guide-step">
+                    <h3>第一步：保存网站代码</h3>
+                    <p>将此网页完整保存为HTML文件：</p>
+                    <ol>
+                        <li>按 <code>Ctrl+S</code> (Windows) 或 <code>Cmd+S</code> (Mac)</li>
+                        <li>选择保存位置（建议桌面）</li>
+                        <li>文件名输入：<code>lunheishui.html</code></li>
+                        <li>保存类型选择：<code>网页，全部</code></li>
+                    </ol>
+                </div>
+                
+                <div class="guide-step">
+                    <h3>第二步：注册GitHub账号</h3>
+                    <p>访问 <a href="https://github.com" target="_blank" style="color: var(--accent);">GitHub官网</a> 注册免费账号</p>
+                </div>
+                
+                <div class="guide-step">
+                    <h3>第三步：创建代码仓库</h3>
+                    <p>登录GitHub后：</p>
+                    <ol>
+                        <li>点击右上角 "+" 号，选择 "New repository"</li>
+                        <li>仓库名称：<code>lunheishui</code></li>
+                        <li>勾选 "Public"（公开）</li>
+                        <li>勾选 "Add a README file"</li>
+                        <li>点击 "Create repository"</li>
+                    </ol>
+                </div>
+                
+                <div class="guide-step">
+                    <h3>第四步：上传网站文件</h3>
+                    <p>在新建的仓库页面：</p>
+                    <ol>
+                        <li>点击 "Add file" → "Upload files"</li>
+                        <li>将保存的 <code>lunheishui.html</code> 拖拽到上传区域</li>
+                        <li>点击 "Commit changes"</li>
+                    </ol>
+                </div>
+                
+                <div class="guide-step">
+                    <h3>第五步：启用GitHub Pages</h3>
+                    <p>在仓库页面：</p>
+                    <ol>
+                        <li>点击顶部 "Settings" 标签</li>
+                        <li>左侧菜单选择 "Pages"</li>
+                        <li>在 "Source" 部分选择 "main" 分支</li>
+                        <li>点击 "Save"</li>
+                        <li>等待几分钟，刷新页面</li>
+                        <li>记下生成的网站地址：<code>https://[你的用户名].github.io/lunheishui/</code></li>
+                    </ol>
+                </div>
+                
+                <div class="guide-step">
+                    <h3>第六步：分享网站链接</h3>
+                    <p>将此链接分享给朋友：</p>
+                    <p><code id="siteLink">https://你的用户名.github.io/lunheishui/</code></p>
+                    <p>全国用户都可以通过此链接访问您的社区网站！</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 话题详情页 -->
+        <section id="topicDetail" class="hidden">
+            <!-- 内容将通过JS动态生成 -->
+        </section>
+    </main>
+
+    <!-- 举报模态框 -->
+    <div class="report-modal" id="reportModal">
+        <div class="report-content">
+            <button class="close-modal" onclick="document.getElementById('reportModal').classList.remove('active')">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3>举报内容</h3>
+            <div class="form-group">
+                <label>举报类型</label>
+                <select id="reportType" class="form-control">
+                    <option value="spam">垃圾广告、打广告</option>
+                    <option value="harassment">骚扰或人身攻击、辱骂网络暴力</option>
+                    <option value="inappropriate">色情骚扰等不适当内容</option>
+                    <option value="other">其他骚扰类型举报</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>详细描述</label>
+                <textarea id="reportDescription" class="form-control" placeholder="请描述举报原因..."></textarea>
+            </div>
+            
+            <!-- 图形验证码 -->
+            <div class="form-group">
+                <label>验证码</label>
+                <div class="captcha-container">
+                    <input type="text" id="reportCaptcha" class="form-control captcha-input" placeholder="请输入验证码">
+                    <div class="captcha-display" id="captchaDisplay">AB12</div>
+                    <button class="refresh-captcha" id="refreshCaptcha">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="report-limit" id="reportLimitMessage"></div>
+            
+            <div class="report-buttons">
+                <button class="btn btn-outline" id="cancelReportBtn">取消</button>
+                <button class="btn btn-primary" id="submitReportBtn">提交举报</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 隐私政策模态框 -->
+    <div class="privacy-modal" id="privacyModal">
+        <div class="privacy-content">
+            <button class="close-modal" onclick="document.getElementById('privacyModal').classList.remove('active')">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>用户隐私政策</h2>
+            <p>最后更新日期：2023年10月15日</p>
+            
+            <h3>引言</h3>
+            <p>论黑水社区（以下简称"我们"或"本社区"）非常重视用户的隐私和个人信息保护。本隐私政策旨在帮助您了解我们会如何收集、使用和保护您的个人信息。</p>
+            
+            <h3>我们收集的信息</h3>
+            <p>当您使用我们的服务时，我们可能会收集以下信息：</p>
+            <ul>
+                <li><strong>账户信息：</strong>当您注册账户时，我们会收集您的用户名、电子邮箱地址和密码。</li>
+                <li><strong>个人资料信息：</strong>您可以选择提供个人资料信息，如头像、个人简介等。</li>
+                <li><strong>用户生成内容：</strong>您在本社区创建、发布或上传的内容。</li>
+                <li><strong>使用数据：</strong>我们可能会收集有关您如何访问和使用我们服务的信息。</li>
+            </ul>
+            
+            <h3>我们如何使用信息</h3>
+            <p>我们可能将收集的信息用于以下目的：</p>
+            <ul>
+                <li>提供、维护和改进我们的服务</li>
+                <li>管理您的账户并提供客户支持</li>
+                <li>与您沟通，包括发送服务相关通知</li>
+                <li>监控和分析服务的使用情况</li>
+                <li>检测、预防和解决技术问题</li>
+            </ul>
+            
+            <h3>信息共享</h3>
+            <p>我们不会与任何公司、组织和个人分享您的个人信息，除非以下情况：</p>
+            <ul>
+                <li>获得您的明确同意</li>
+                <li>为遵守适用的法律法规或响应有效的法律程序</li>
+                <li>保护我们、我们的用户或公众的权利、财产或安全</li>
+            </ul>
+            
+            <h3>信息安全</h3>
+            <p>我们采取合理的安全措施来保护您的个人信息免遭丢失、滥用和未经授权的访问、披露、更改或销毁。</p>
+            
+            <h3>您的权利</h3>
+            <p>根据适用法律，您可能有权：</p>
+            <ul>
+                <li>访问我们持有的关于您的个人信息</li>
+                <li>要求更正不准确或不完整的个人信息</li>
+                <li>要求删除您的个人信息</li>
+                <li>反对或限制某些处理活动</li>
+            </ul>
+            
+            <h3>政策变更</h3>
+            <p>我们可能会不时更新本隐私政策。我们会在本页面上发布新的隐私政策，并通过电子邮件或其他方式通知您。</p>
+            
+            <h3>联系我们</h3>
+            <p>如果您对本隐私政策有任何疑问，请通过 contact@lunheishui.com 与我们联系。</p>
+            
+            <div class="text-center mt-20">
+                <button class="btn btn-primary" id="closePrivacyBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录/注册模态框 -->
+    <div id="authModal" class="hidden">
+        <div class="auth-container">
+            <button class="close-modal" onclick="document.getElementById('authModal').classList.add('hidden')">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login">登录</div>
+                <div class="auth-tab" data-tab="register">注册</div>
+            </div>
+            
+            <div class="auth-form active" id="loginForm">
+                <div class="form-group">
+                    <label for="loginUsername">用户名</label>
+                    <input type="text" id="loginUsername" class="form-control" placeholder="输入用户名">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">密码</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="输入密码">
+                </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe">记住我</label>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="loginSubmitBtn">登录</button>
+                <p class="text-center mt-20">
+                    <a href="#" style="color: var(--accent);">忘记密码?</a>
+                </p>
+            </div>
+            
+            <div class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label for="registerUsername">用户名</label>
+                    <input type="text" id="registerUsername" class="form-control" placeholder="创建用户名">
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">电子邮箱</label>
+                    <input type="email" id="registerEmail" class="form-control" placeholder="输入电子邮箱">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">密码</label>
+                    <input type="password" id="registerPassword" class="form-control" placeholder="创建密码">
+                </div>
+                <div class="form-group">
+                    <label for="registerPasswordConfirm">确认密码</label>
+                    <input type="password" id="registerPasswordConfirm" class="form-control" placeholder="再次输入密码">
+                </div>
+                <div class="form-group">
+                    <label for="registerPhone">手机号（用于安全验证）</label>
+                    <input type="tel" id="registerPhone" class="form-control" placeholder="输入手机号">
+                </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="acceptTerms" required>
+                        <label for="acceptTerms">我同意<a href="#" id="termsLink">服务条款</a>和<a href="#" id="privacyModalLink">隐私政策</a></label>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="registerSubmitBtn">注册账号</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3 class="footer-title">关于论黑水</h3>
+                    <p>论黑水是一个开放、自由的交流平台，致力于为用户提供高质量的讨论环境。在这里，您可以分享观点、交流思想、结交志同道合的朋友。</p>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">快速链接</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" class="nav-link" data-page="home">首页</a></li>
+                        <li><a href="#" class="nav-link" data-page="popular">热门内容</a></li>
+                        <li><a href="#" class="nav-link" data-page="discover">发现</a></li>
+                        <li><a href="#" id="privacyLink">用户协议</a></li>
+                        <li><a href="#" id="privacyPolicyLink">隐私政策</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">联系我们</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> 2150315235@qq.com</li>
+                        <li><i class="fas fa-phone"></i> +86 185 6950 5554</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 日本东京麝香中村一项十目盯大厦</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2018 论黑水社区 | 作者: 默认 | 保留所有权利</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 用户等级系统
+        const LEVELS = [
+            { minExp: 0, maxExp: 39, name: "萌新", level: 1, color: "level-1" },
+            { minExp: 40, maxExp: 79, name: "活跃者", level: 2, color: "level-2" },
+            { minExp: 80, maxExp: 159, name: "达人", level: 3, color: "level-3" },
+            { minExp: 160, maxExp: 319, name: "专家", level: 4, color: "level-4" },
+            { minExp: 320, maxExp: Infinity, name: "大师", level: 5, color: "level-5" }
+        ];
+        
+        // 免费公共JSON存储服务URL
+        const PUBLIC_DB_URL = "https://api.jsonbin.io/v3/b/6640d1f1e41b4d34e4f1d0e4";
+        const API_KEY = "$2a$10$iXyD3l9w.3LcOQz9G5tL8uKfVtXg2dU4sJkM7nP1qR6bYc5vA8wZ0";
+        
+        // 数据结构
+        let DB = {
+            users: [],
+            topics: [],
+            submissions: [],
+            currentUser: JSON.parse(localStorage.getItem('currentUser')) || null,
+            adminUser: { username: 'Moren', password: 'Moren114514', isAdmin: true, experience: 500 },
+            reports: [],
+            likes: {},
+            checkins: {}
+        };
+
+        // DOM元素
+        const DOM = {
+            loginBtn: document.getElementById('loginBtn'),
+            registerBtn: document.getElementById('registerBtn'),
+            authModal: document.getElementById('authModal'),
+            userActions: document.getElementById('userActions'),
+            topicsContainer: document.getElementById('topicsContainer'),
+            popularTopicsContainer: document.getElementById('popularTopicsContainer'),
+            discoverTopicsContainer: document.getElementById('discoverTopicsContainer'),
+            allTopicsContainer: document.getElementById('allTopicsContainer'),
+            topicDetail: document.getElementById('topicDetail'),
+            createTopicForm: document.getElementById('createTopicForm'),
+            publishTopicBtn: document.getElementById('publishTopicBtn'),
+            loginSubmitBtn: document.getElementById('loginSubmitBtn'),
+            registerSubmitBtn: document.getElementById('registerSubmitBtn'),
+            reportModal: document.getElementById('reportModal'),
+            cancelReportBtn: document.getElementById('cancelReportBtn'),
+            submitReportBtn: document.getElementById('submitReportBtn'),
+            captchaDisplay: document.getElementById('captchaDisplay'),
+            refreshCaptcha: document.getElementById('refreshCaptcha'),
+            reportCaptcha: document.getElementById('reportCaptcha'),
+            reportLimitMessage: document.getElementById('reportLimitMessage'),
+            updateNotification: document.getElementById('updateNotification'),
+            notificationText: document.getElementById('notificationText'),
+            submitSubmissionBtn: document.getElementById('submitSubmissionBtn'),
+            privacyModal: document.getElementById('privacyModal'),
+            closePrivacyBtn: document.getElementById('closePrivacyBtn'),
+            privacyLink: document.getElementById('privacyLink'),
+            privacyPolicyLink: document.getElementById('privacyPolicyLink'),
+            privacyModalLink: document.getElementById('privacyModalLink'),
+            termsLink: document.getElementById('termsLink'),
+            navLinks: document.querySelectorAll('.nav-link'),
+            profileAvatar: document.getElementById('profileAvatar'),
+            profileUsername: document.getElementById('profileUsername'),
+            profileLevel: document.getElementById('profileLevel'),
+            topicCount: document.getElementById('topicCount'),
+            commentCount: document.getElementById('commentCount'),
+            likeCount: document.getElementById('likeCount'),
+            expValue: document.getElementById('expValue'),
+            expProgress: document.getElementById('expProgress'),
+            profileSignature: document.getElementById('profileSignature'),
+            profileEmail: document.getElementById('profileEmail'),
+            profilePhone: document.getElementById('profilePhone'),
+            userTopicsContainer: document.getElementById('userTopicsContainer'),
+            quoteText: document.getElementById('quoteText'),
+            quoteAuthor: document.getElementById('quoteAuthor'),
+            themeToggle: document.getElementById('themeToggle'),
+            rainCanvas: document.getElementById('rainCanvas'),
+            syncStatus: document.getElementById('syncStatus'),
+            siteLink: document.getElementById('siteLink')
+        };
+
+        // 初始化
+        init();
+
+        async function init() {
+            try {
+                // 加载数据
+                await loadData();
+                
+                // 初始化UI
+                updateUI();
+                renderTopics();
+                setupEventListeners();
+                generateCaptcha();
+                initRainEffect();
+                showRandomQuote();
+                
+                // 初始化分页
+                showPage('home');
+                
+                // 启动自动同步
+                setInterval(syncData, 30000); // 每30秒同步一次
+            } catch (error) {
+                console.error('初始化失败:', error);
+                showNotification('数据加载失败，请刷新页面重试');
+            }
+        }
+
+        // 从公共存储加载数据
+        async function loadData() {
+            try {
+                DOM.syncStatus.classList.add('syncing');
+                DOM.syncStatus.querySelector('span').textContent = '同步数据中...';
+                
+                const response = await fetch(PUBLIC_DB_URL, {
+                    method: 'GET',
+                    headers: {
+                        'X-Master-Key': API_KEY,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('网络响应不正常');
+                }
+                
+                const data = await response.json();
+                
+                // 合并远程数据
+                DB = {
+                    ...DB,
+                    ...data.record,
+                    currentUser: JSON.parse(localStorage.getItem('currentUser')) || null
+                };
+                
+                // 初始化管理员账号
+                if (!DB.users.some(user => user.username === DB.adminUser.username)) {
+                    DB.users.push(DB.adminUser);
+                }
+                
+                // 初始化点赞记录
+                if (!DB.likes.topics) DB.likes.topics = {};
+                if (!DB.likes.comments) DB.likes.comments = {};
+                if (!DB.likes.replies) DB.likes.replies = {};
+                
+                DOM.syncStatus.classList.remove('syncing');
+                DOM.syncStatus.querySelector('span').textContent = '数据已同步';
+                
+                console.log('数据加载成功');
+            } catch (error) {
+                console.error('数据加载失败:', error);
+                DOM.syncStatus.querySelector('span').textContent = '同步失败';
+                setTimeout(() => {
+                    DOM.syncStatus.querySelector('span').textContent = '数据已同步';
+                }, 3000);
+            }
+        }
+
+        // 同步数据到公共存储
+        async function syncData() {
+            try {
+                DOM.syncStatus.classList.add('syncing');
+                DOM.syncStatus.querySelector('span').textContent = '同步数据中...';
+                
+                // 准备要保存的数据
+                const dataToSave = {
+                    users: DB.users,
+                    topics: DB.topics,
+                    submissions: DB.submissions,
+                    reports: DB.reports,
+                    likes: DB.likes,
+                    checkins: DB.checkins
+                };
+                
+                const response = await fetch(PUBLIC_DB_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'X-Master-Key': API_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataToSave)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('数据同步失败');
+                }
+                
+                DOM.syncStatus.classList.remove('syncing');
+                DOM.syncStatus.querySelector('span').textContent = '数据已同步';
+                
+                console.log('数据同步成功');
+            } catch (error) {
+                console.error('数据同步失败:', error);
+                DOM.syncStatus.querySelector('span').textContent = '同步失败';
+                setTimeout(() => {
+                    DOM.syncStatus.querySelector('span').textContent = '数据已同步';
+                }, 3000);
+            }
+        }
+
+        // 黑色雨滴效果
+        function initRainEffect() {
+            const canvas = DOM.rainCanvas;
+            const ctx = canvas.getContext('2d');
+            
+            // 设置画布大小
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // 雨滴数组
+            const raindrops = [];
+            const raindropCount = 150;
+            
+            // 创建雨滴
+            class Raindrop {
+                constructor() {
+                    this.reset();
+                }
+                
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * -canvas.height;
+                    this.z = Math.random() * 0.5 + 0.5;
+                    this.len = 10 * this.z;
+                    this.yspeed = 2 + Math.random() * 8;
+                    this.thickness = 1 * this.z;
+                }
+                
+                fall() {
+                    this.y += this.yspeed;
+                    this.yspeed += 0.05;
+                    
+                    if (this.y > canvas.height) {
+                        this.reset();
+                    }
+                }
+                
+                draw() {
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+                    ctx.lineWidth = this.thickness;
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x, this.y + this.len);
+                    ctx.stroke();
+                }
+            }
+            
+            // 初始化雨滴
+            for (let i = 0; i < raindropCount; i++) {
+                raindrops.push(new Raindrop());
+            }
+            
+            // 动画循环
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                for (const drop of raindrops) {
+                    drop.fall();
+                    drop.draw();
+                }
+                
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+        
+        // 鼠标点击水波纹效果
+        document.addEventListener('click', function(e) {
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            ripple.style.left = e.clientX + 'px';
+            ripple.style.top = e.clientY + 'px';
+            document.body.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+        
+        // 随机名言
+        const quotes = [
+            { text: "思想的力量在于分享，而非独占", author: "论黑水社区" },
+            { text: "黑水之论，在于明辨是非，而非人云亦云", author: "默认" },
+            { text: "在黑暗中寻找光明，在混乱中建立秩序", author: "黑水箴言" },
+            { text: "真正的自由来自于对真理的追求", author: "自由思想家" },
+            { text: "交流是思想的碰撞，而非武器的交锋", author: "和平倡导者" }
+        ];
+        
+        function showRandomQuote() {
+            const quote = quotes[Math.floor(Math.random() * quotes.length)];
+            DOM.quoteText.textContent = `"${quote.text}"`;
+            DOM.quoteAuthor.textContent = `- ${quote.author}`;
+        }
+        
+        // 主题切换
+        DOM.themeToggle.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('fa-moon')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                document.body.classList.add('light-theme');
+                document.body.style.setProperty('--bg-dark', '#f0f0f0');
+                document.body.style.setProperty('--text-primary', '#333');
+                document.body.style.setProperty('--text-secondary', '#666');
+                document.body.style.setProperty('--bg-card', '#ffffff');
+                document.body.style.setProperty('--bg-input', '#e0e0e0');
+                document.body.style.setProperty('--border', '#ddd');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                document.body.classList.remove('light-theme');
+                document.body.style.setProperty('--bg-dark', '#121212');
+                document.body.style.setProperty('--text-primary', '#f0f0f0');
+                document.body.style.setProperty('--text-secondary', '#b0b0b0');
+                document.body.style.setProperty('--bg-card', '#1e1e1e');
+                document.body.style.setProperty('--bg-input', '#2d2d2d');
+                document.body.style.setProperty('--border', '#333');
+            }
+        });
+
+        function setupEventListeners() {
+            // 登录/注册按钮
+            DOM.loginBtn.addEventListener('click', () => showAuthModal('login'));
+            DOM.registerBtn.addEventListener('click', () => showAuthModal('register'));
+            
+            // 登录/注册提交
+            DOM.loginSubmitBtn.addEventListener('click', login);
+            DOM.registerSubmitBtn.addEventListener('click', register);
+            
+            // 发布话题
+            DOM.publishTopicBtn.addEventListener('click', createTopic);
+            
+            // 举报相关
+            DOM.cancelReportBtn.addEventListener('click', () => DOM.reportModal.classList.remove('active'));
+            DOM.submitReportBtn.addEventListener('click', submitReport);
+            DOM.refreshCaptcha.addEventListener('click', generateCaptcha);
+            
+            // 外部点击关闭模态框
+            document.addEventListener('click', (e) => {
+                if (e.target === DOM.authModal) DOM.authModal.classList.add('hidden');
+                if (e.target === DOM.reportModal) DOM.reportModal.classList.remove('active');
+                if (e.target === DOM.privacyModal) DOM.privacyModal.classList.remove('active');
+            });
+            
+            // 监听话题更新
+            window.addEventListener('topicUpdate', () => {
+                renderTopics();
+                showNotification('有新话题发布');
+            });
+            
+            // 监听评论更新
+            window.addEventListener('commentUpdate', () => {
+                if (document.querySelector('#topicDetail:not(.hidden)')) {
+                    const topicId = parseInt(document.querySelector('.topic-detail').dataset.id);
+                    renderTopicDetail(topicId);
+                    showNotification('有新评论发布');
+                }
+            });
+            
+            // 分页导航
+            DOM.navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.getAttribute('data-page');
+                    showPage(page);
+                    
+                    // 更新导航状态
+                    DOM.navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                });
+            });
+            
+            // 隐私政策
+            DOM.closePrivacyBtn.addEventListener('click', () => DOM.privacyModal.classList.remove('active'));
+            DOM.privacyLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                DOM.privacyModal.classList.add('active');
+            });
+            DOM.privacyPolicyLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                DOM.privacyModal.classList.add('active');
+            });
+            DOM.privacyModalLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                DOM.authModal.classList.add('hidden');
+                DOM.privacyModal.classList.add('active');
+            });
+            DOM.termsLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                DOM.privacyModal.classList.add('active');
+            });
+            
+            // 投稿提交
+            DOM.submitSubmissionBtn.addEventListener('click', submitSubmission);
+        }
+
+        // 显示页面
+        function showPage(pageId) {
+            // 隐藏所有页面
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // 显示当前页面
+            document.getElementById(`${pageId}-page`).classList.add('active');
+            
+            // 根据页面渲染内容
+            switch(pageId) {
+                case 'home':
+                    renderTopics();
+                    break;
+                case 'popular':
+                    renderPopularTopics();
+                    break;
+                case 'discover':
+                    renderDiscoverTopics();
+                    break;
+                case 'topics':
+                    renderAllTopics();
+                    break;
+                case 'profile':
+                    renderProfilePage();
+                    break;
+                case 'deploy':
+                    renderDeployPage();
+                    break;
+            }
+        }
+        
+        // 渲染部署指南页面
+        function renderDeployPage() {
+            // 在部署指南页面显示当前部署的链接
+            const username = localStorage.getItem('githubUsername');
+            if (username) {
+                DOM.siteLink.textContent = `https://${username}.github.io/lunheishui/`;
+            }
+        }
+
+        // 渲染我的页面
+        function renderProfilePage() {
+            if (!DB.currentUser) {
+                DOM.userTopicsContainer.innerHTML = `
+                    <div class="text-center" style="grid-column: 1/-1; padding: 40px;">
+                        <h3>请先登录查看个人主页</h3>
+                        <button class="btn btn-primary mt-20" onclick="showAuthModal('login')">立即登录</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 更新用户信息
+            DOM.profileAvatar.textContent = DB.currentUser.username.charAt(0);
+            DOM.profileUsername.textContent = DB.currentUser.username;
+            
+            // 计算用户统计数据
+            const userTopics = DB.topics.filter(topic => topic.author === DB.currentUser.username);
+            const userComments = DB.topics.flatMap(topic => 
+                topic.comments.filter(comment => comment.author === DB.currentUser.username)
+            );
+            
+            let totalLikes = 0;
+            DB.topics.forEach(topic => {
+                if (topic.author === DB.currentUser.username) {
+                    totalLikes += topic.likes;
+                }
+            });
+            
+            DOM.topicCount.textContent = userTopics.length;
+            DOM.commentCount.textContent = userComments.length;
+            DOM.likeCount.textContent = totalLikes;
+            DOM.expValue.textContent = DB.currentUser.experience || 0;
+            
+            // 更新用户等级
+            const levelInfo = getUserLevelInfo(DB.currentUser);
+            if (levelInfo) {
+                DOM.profileLevel.textContent = `${levelInfo.name} Lv.${levelInfo.level}`;
+                DOM.profileLevel.className = `profile-level ${levelInfo.color}`;
+                
+                // 计算经验值进度
+                const progress = Math.min(100, 
+                    ((DB.currentUser.experience - levelInfo.minExp) / 
+                    (levelInfo.maxExp - levelInfo.minExp)) * 100
+                );
+                
+                // 更新经验条
+                setTimeout(() => {
+                    DOM.expProgress.style.width = `${progress}%`;
+                }, 100);
+            }
+            
+            // 更新联系信息
+            DOM.profileEmail.textContent = DB.currentUser.email || '未设置';
+            DOM.profilePhone.textContent = DB.currentUser.phone ? 
+                DB.currentUser.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : 
+                '未设置';
+            
+            // 更新签名
+            DOM.profileSignature.textContent = DB.currentUser.signature || 
+                '这个人很懒，还没有写签名...';
+            
+            // 渲染用户话题
+            renderUserTopics(userTopics);
+        }
+        
+        // 渲染用户话题
+        function renderUserTopics(topics) {
+            DOM.userTopicsContainer.innerHTML = '';
+            
+            if (topics.length === 0) {
+                DOM.userTopicsContainer.innerHTML = `
+                    <div class="text-center" style="grid-column: 1/-1; padding: 30px;">
+                        <i class="fas fa-comment-slash" style="font-size: 3rem; opacity: 0.5; margin-bottom: 15px;"></i>
+                        <h3>抱歉，您还没有发布过任何话题欸~</h3>
+                        <p class="mt-10">在此分享您的观点，开始第一个话题吧！</p>
+                        <button class="btn btn-outline mt-20" onclick="showPage('home')">去发布话题</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            topics.forEach(topic => {
+                const topicEl = document.createElement('div');
+                topicEl.className = 'user-topic-card';
+                topicEl.innerHTML = `
+                    <div class="user-topic-title">${topic.title}</div>
+                    <div class="user-topic-content">${topic.content.substring(0, 80)}${topic.content.length > 80 ? '...' : ''}</div>
+                    <div class="user-topic-meta">
+                        <span>${topic.timestamp}</span>
+                        <span><i class="fas fa-heart"></i> ${topic.likes}</span>
+                        <span><i class="fas fa-comment"></i> ${topic.comments.length}</span>
+                    </div>
+                `;
+                
+                topicEl.addEventListener('click', () => {
+                    renderTopicDetail(topic.id);
+                    showPage('home');
+                });
+                
+                DOM.userTopicsContainer.appendChild(topicEl);
+            });
+        }
+        
+        // 获取用户等级信息
+        function getUserLevelInfo(user) {
+            return LEVELS.find(lvl => 
+                user.experience >= lvl.minExp && user.experience <= lvl.maxExp
+            );
+        }
+
+        // 显示通知
+        function showNotification(text) {
+            DOM.notificationText.textContent = text;
+            DOM.updateNotification.classList.add('show');
+            
+            setTimeout(() => {
+                DOM.updateNotification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 生成验证码
+        function generateCaptcha() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let captcha = '';
+            for (let i = 0; i < 4; i++) {
+                captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            DOM.captchaDisplay.textContent = captcha;
+            return captcha;
+        }
+
+        // 显示登录/注册模态框
+        function showAuthModal(tab) {
+            DOM.authModal.classList.remove('hidden');
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.auth-tab[data-tab="${tab}"]`).classList.add('active');
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            document.getElementById(`${tab}Form`).classList.add('active');
+        }
+
+        // 用户登录
+        function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            
+            if (!username || !password) {
+                showNotification('请输入用户名和密码');
+                return;
+            }
+            
+            const user = DB.users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                DB.currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                updateUI();
+                DOM.authModal.classList.add('hidden');
+                showNotification(`欢迎回来，${username}！`);
+                // 更新我的页面
+                if (document.getElementById('profile-page').classList.contains('active')) {
+                    renderProfilePage();
+                }
+                
+                // 同步数据
+                syncData();
+            } else {
+                showNotification('用户名或密码错误');
+            }
+        }
+
+        // 用户注册
+        function register() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value.trim();
+            const confirmPassword = document.getElementById('registerPasswordConfirm').value.trim();
+            const phone = document.getElementById('registerPhone').value.trim();
+            
+            if (!username || !email || !password || !confirmPassword || !phone) {
+                showNotification('请填写所有字段');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showNotification('密码长度至少为6位');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showNotification('两次输入的密码不一致');
+                return;
+            }
+            
+            if (DB.users.some(u => u.username === username)) {
+                showNotification('用户名已存在');
+                return;
+            }
+            
+            const newUser = { 
+                username, 
+                email, 
+                password, 
+                phone,
+                isAdmin: false,
+                experience: 0,
+                level: 1
+            };
+            DB.users.push(newUser);
+            
+            DB.currentUser = newUser;
+            localStorage.setItem('currentUser', JSON.stringify(newUser));
+            
+            updateUI();
+            DOM.authModal.classList.add('hidden');
+            showNotification('注册成功！');
+            
+            // 更新我的页面
+            if (document.getElementById('profile-page').classList.contains('active')) {
+                renderProfilePage();
+            }
+            
+            // 同步数据
+            syncData();
+        }
+
+        // 签到功能
+        function checkIn() {
+            if (!DB.currentUser) return;
+            
+            const today = new Date().toLocaleDateString();
+            
+            // 初始化签到记录
+            if (!DB.checkins[DB.currentUser.username]) {
+                DB.checkins[DB.currentUser.username] = [];
+            }
+            
+            // 检查今天是否已经签到
+            if (DB.checkins[DB.currentUser.username].includes(today)) {
+                showNotification('今天已经签到过了');
+                return;
+            }
+            
+            // 添加签到记录
+            DB.checkins[DB.currentUser.username].push(today);
+            
+            // 增加经验值
+            DB.currentUser.experience += 3;
+            updateUserLevel(DB.currentUser);
+            
+            // 更新用户数据
+            const userIndex = DB.users.findIndex(u => u.username === DB.currentUser.username);
+            if (userIndex !== -1) {
+                DB.users[userIndex] = DB.currentUser;
+                localStorage.setItem('currentUser', JSON.stringify(DB.currentUser));
+            }
+            
+            updateUI();
+            showNotification('签到成功！获得3点经验值');
+            
+            // 更新我的页面
+            if (document.getElementById('profile-page').classList.contains('active')) {
+                renderProfilePage();
+            }
+            
+            // 同步数据
+            syncData();
+        }
+        
+        // 更新用户等级
+        function updateUserLevel(user) {
+            const level = LEVELS.find(lvl => 
+                user.experience >= lvl.minExp && user.experience <= lvl.maxExp
+            );
+            
+            if (level) {
+                user.level = level.level;
+            }
+        }
+
+        // 登出
+        function logout() {
+            DB.currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateUI();
+            showNotification('您已成功登出');
+            
+            // 更新我的页面
+            if (document.getElementById('profile-page').classList.contains('active')) {
+                renderProfilePage();
+            }
+        }
+
+        // 创建话题
+        function createTopic() {
+            if (!DB.currentUser) {
+                showNotification('请先登录');
+                showAuthModal('login');
+                return;
+            }
+            
+            const title = document.getElementById('topicTitle').value.trim();
+            const content = document.getElementById('topicContent').value.trim();
+            
+            if (!title || !content) {
+                showNotification('请填写标题和内容');
+                return;
+            }
+            
+            const newTopic = {
+                id: Date.now(),
+                title,
+                content,
+                author: DB.currentUser.username,
+                authorId: DB.currentUser.username,
+                timestamp: new Date().toLocaleString(),
+                likes: 0,
+                likedBy: [],
+                comments: [],
+                votes: [],
+                reports: [],
+                isOfficial: false
+            };
+            
+            DB.topics.unshift(newTopic);
+            
+            document.getElementById('topicTitle').value = '';
+            document.getElementById('topicContent').value = '';
+            
+            // 触发话题更新事件
+            const event = new Event('topicUpdate');
+            window.dispatchEvent(event);
+            
+            showNotification('话题发布成功！');
+            
+            // 更新我的页面
+            if (document.getElementById('profile-page').classList.contains('active')) {
+                renderProfilePage();
+            }
+            
+            // 同步数据
+            syncData();
+        }
+        
+        // 提交投稿
+        function submitSubmission() {
+            if (!DB.currentUser) {
+                showNotification('请先登录');
+                showAuthModal('login');
+                return;
+            }
+            
+            const title = document.getElementById('submissionTitle').value.trim();
+            const content = document.getElementById('submissionContent').value.trim();
+            const imageFile = document.getElementById('submissionImage').files[0];
+            
+            if (!title || !content) {
+                showNotification('请填写标题和内容');
+                return;
+            }
+            
+            const newSubmission = {
+                id: Date.now(),
+                title,
+                content,
+                author: DB.currentUser.username,
+                timestamp: new Date().toLocaleString(),
+                image: imageFile ? URL.createObjectURL(imageFile) : null,
+                status: 'pending'
+            };
+            
+            DB.submissions.push(newSubmission);
+            
+            // 清空表单
+            document.getElementById('submissionTitle').value = '';
+            document.getElementById('submissionContent').value = '';
+            document.getElementById('submissionImage').value = '';
+            
+            showNotification('投稿已提交！管理员会尽快审核您的投稿');
+            
+            // 同步数据
+            syncData();
+        }
+
+        // 渲染话题列表
+        function renderTopics() {
+            DOM.topicsContainer.innerHTML = '';
+            
+            if (DB.topics.length === 0) {
+                DOM.topicsContainer.innerHTML = '<div class="text-center">暂无话题</div>';
+                return;
+            }
+            
+            // 只显示最新的10个话题
+            const recentTopics = DB.topics.slice(0, 10);
+            
+            recentTopics.forEach(topic => {
+                const topicEl = document.createElement('div');
+                topicEl.className = 'topic-card fade-in';
+                topicEl.innerHTML = `
+                    <div class="topic-header">
+                        <h3 class="topic-title">${topic.title}</h3>
+                        <div class="topic-meta">
+                            <span>作者: ${topic.author}</span>
+                            <span>${topic.timestamp}</span>
+                        </div>
+                    </div>
+                    <div class="topic-content">
+                        <p>${topic.content.substring(0, 100)}${topic.content.length > 100 ? '...' : ''}</p>
+                    </div>
+                    <div class="topic-stats">
+                        <div class="stat" onclick="likeTopic(${topic.id})">
+                            <i class="fas fa-heart ${isTopicLikedByCurrentUser(topic.id) ? 'active' : ''}"></i>
+                            <span>${topic.likes} 赞</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-comment"></i>
+                            <span>${topic.comments.length} 评论</span>
+                        </div>
+                        <div class="stat" onclick="showReportModal('topic', ${topic.id})">
+                            <i class="fas fa-flag"></i>
+                            <span>举报</span>
+                        </div>
+                    </div>
+                `;
+                
+                topicEl.addEventListener('click', () => renderTopicDetail(topic.id));
+                DOM.topicsContainer.appendChild(topicEl);
+            });
+        }
+        
+        // 渲染热门话题
+        function renderPopularTopics() {
+            DOM.popularTopicsContainer.innerHTML = '';
+            
+            if (DB.topics.length === 0) {
+                DOM.popularTopicsContainer.innerHTML = '<div class="text-center">暂无热门话题</div>';
+                return;
+            }
+            
+            // 按点赞数排序
+            const popularTopics = [...DB.topics].sort((a, b) => b.likes - a.likes).slice(0, 10);
+            
+            popularTopics.forEach(topic => {
+                const topicEl = document.createElement('div');
+                topicEl.className = 'topic-card fade-in';
+                topicEl.innerHTML = `
+                    <div class="topic-header">
+                        <h3 class="topic-title">${topic.title}</h3>
+                        <div class="topic-meta">
+                            <span>作者: ${topic.author}</span>
+                            <span>${topic.timestamp}</span>
+                        </div>
+                    </div>
+                    <div class="topic-content">
+                        <p>${topic.content.substring(0, 100)}${topic.content.length > 100 ? '...' : ''}</p>
+                    </div>
+                    <div class="topic-stats">
+                        <div class="stat">
+                            <i class="fas fa-heart"></i>
+                            <span>${topic.likes} 赞</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-comment"></i>
+                            <span>${topic.comments.length} 评论</span>
+                        </div>
+                    </div>
+                `;
+                
+                topicEl.addEventListener('click', () => renderTopicDetail(topic.id));
+                DOM.popularTopicsContainer.appendChild(topicEl);
+            });
+        }
+        
+        // 渲染发现页面（官方内容）
+        function renderDiscoverTopics() {
+            DOM.discoverTopicsContainer.innerHTML = '';
+            
+            const officialTopics = DB.topics.filter(topic => topic.isOfficial);
+            
+            if (officialTopics.length === 0) {
+                DOM.discoverTopicsContainer.innerHTML = '<div class="text-center">暂无官方通告</div>';
+                return;
+            }
+            
+            officialTopics.forEach(topic => {
+                const topicEl = document.createElement('div');
+                topicEl.className = 'topic-card fade-in';
+                topicEl.innerHTML = `
+                    <div class="topic-header" style="background: linear-gradient(90deg, var(--success), var(--accent));">
+                        <h3 class="topic-title">${topic.title}</h3>
+                        <div class="topic-meta">
+                            <span><i class="fas fa-shield-alt"></i> 官方通告</span>
+                            <span>${topic.timestamp}</span>
+                        </div>
+                    </div>
+                    <div class="topic-content">
+                        <p>${topic.content.substring(0, 150)}${topic.content.length > 150 ? '...' : ''}</p>
+                    </div>
+                    <div class="topic-stats">
+                        <div class="stat">
+                            <i class="fas fa-heart"></i>
+                            <span>${topic.likes} 赞</span>
+                        </div>
+                    </div>
+                `;
+                
+                topicEl.addEventListener('click', () => renderTopicDetail(topic.id));
+                DOM.discoverTopicsContainer.appendChild(topicEl);
+            });
+        }
+        
+        // 渲染所有话题
+        function renderAllTopics() {
+            DOM.allTopicsContainer.innerHTML = '';
+            
+            if (DB.topics.length === 0) {
+                DOM.allTopicsContainer.innerHTML = '<div class="text-center">暂无话题</div>';
+                return;
+            }
+            
+            DB.topics.forEach(topic => {
+                const topicEl = document.createElement('div');
+                topicEl.className = 'topic-card fade-in';
+                topicEl.innerHTML = `
+                    <div class="topic-header">
+                        <h3 class="topic-title">${topic.title}</h3>
+                        <div class="topic-meta">
+                            <span>作者: ${topic.author}</span>
+                            <span>${topic.timestamp}</span>
+                        </div>
+                    </div>
+                    <div class="topic-content">
+                        <p>${topic.content.substring(0, 100)}${topic.content.length > 100 ? '...' : ''}</p>
+                    </div>
+                    <div class="topic-stats">
+                        <div class="stat">
+                            <i class="fas fa-heart"></i>
+                            <span>${topic.likes} 赞</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-comment"></i>
+                            <span>${topic.comments.length} 评论</span>
+                        </div>
+                    </div>
+                `;
+                
+                topicEl.addEventListener('click', () => renderTopicDetail(topic.id));
+                DOM.allTopicsContainer.appendChild(topicEl);
+            });
+        }
+
+        // 检查当前用户是否点赞过话题
+        function isTopicLikedByCurrentUser(topicId) {
+            if (!DB.currentUser) return false;
+            const topic = DB.topics.find(t => t.id === topicId);
+            return topic && topic.likedBy.includes(DB.currentUser.username);
+        }
+
+        // 渲染话题详情
+        function renderTopicDetail(topicId) {
+            const topic = DB.topics.find(t => t.id === topicId);
+            if (!topic) return;
+            
+            // 设置话题ID用于后续操作
+            document.querySelector('.topic-detail')?.setAttribute('data-id', topicId);
+            
+            DOM.topicDetail.innerHTML = `
+                <div class="topic-detail" data-id="${topicId}">
+                    <div class="topic-detail-header">
+                        <h2 class="topic-detail-title">${topic.title}</h2>
+                        <div class="topic-author">
+                            <div class="avatar">${topic.author.charAt(0)}</div>
+                            <div>
+                                <div>${topic.author} ${topic.author === 'Moren' ? '<span class="admin-badge">管理员</span>' : ''}</div>
+                                <div class="topic-time">${topic.timestamp}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="topic-content">
+                        <p>${topic.content}</p>
+                    </div>
+                    
+                    ${topic.votes && topic.votes.length > 0 ? `
+                    <div class="vote-container">
+                        <div class="vote-title">投票</div>
+                        ${topic.votes.map((vote, index) => `
+                            <div class="vote-option">
+                                <div>
+                                    <div>${vote.option}</div>
+                                    <div class="vote-progress">
+                                        <div class="vote-bar" style="width: ${vote.percentage}%"></div>
+                                    </div>
+                                </div>
+                                <div class="vote-count">${vote.count} 票 (${vote.percentage}%)</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                    
+                    <div class="topic-actions">
+                        <button class="btn-icon" onclick="likeTopic(${topic.id})">
+                            <i class="fas fa-heart ${isTopicLikedByCurrentUser(topic.id) ? 'active' : ''}"></i>
+                            <span>点赞 (${topic.likes})</span>
+                        </button>
+                        <button class="btn-icon" onclick="showReportModal('topic', ${topic.id})">
+                            <i class="fas fa-flag"></i>
+                            <span>举报</span>
+                        </button>
+                        ${DB.currentUser && DB.currentUser.isAdmin ? `
+                            <button class="btn-icon btn-danger" onclick="deleteTopic(${topic.id})">
+                                <i class="fas fa-trash"></i>
+                                <span>删除话题</span>
+                            </button>
+                        ` : ''}
+                        <button class="btn-icon" onclick="backToHome()">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>返回首页</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comments-section">
+                    <h3>评论 (${topic.comments.length})</h3>
+                    <div class="comment-form">
+                        <div class="form-group">
+                            <textarea id="commentContent" class="form-control" placeholder="写下您的评论..." ${!DB.currentUser ? 'disabled' : ''}></textarea>
+                        </div>
+                        <button class="btn btn-primary" id="submitCommentBtn" ${!DB.currentUser ? 'disabled' : ''}>发布评论</button>
+                    </div>
+                    
+                    <div class="comment-list" id="commentList">
+                        ${topic.comments.map(comment => `
+                            <div class="comment-card">
+                                <div class="comment-header">
+                                    <div class="comment-author">
+                                        <div class="avatar">${comment.author.charAt(0)}</div>
+                                        <div>
+                                            <div>${comment.author} ${comment.author === 'Moren' ? '<span class="admin-badge">管理员</span>' : ''}</div>
+                                            <div class="comment-time">${comment.timestamp}</div>
+                                        </div>
+                                    </div>
+                                    <div class="comment-actions">
+                                        <div class="action-btn like-btn ${isCommentLikedByCurrentUser(topic.id, comment.id) ? 'active' : ''}" onclick="likeComment(${topic.id}, ${comment.id})">
+                                            <i class="fas fa-heart"></i>
+                                            <span>${comment.likes}</span>
+                                        </div>
+                                        <div class="action-btn report-btn" onclick="showReportModal('comment', ${topic.id}, ${comment.id})">
+                                            <i class="fas fa-flag"></i>
+                                        </div>
+                                        ${DB.currentUser && (DB.currentUser.username === comment.author || DB.currentUser.isAdmin) ? `
+                                            <div class="action-btn" onclick="deleteComment(${topic.id}, ${comment.id})">
+                                                <i class="fas fa-trash"></i>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                                <div class="comment-content">
+                                    ${comment.content}
+                                </div>
+                                
+                                ${comment.replies && comment.replies.length > 0 ? `
+                                    <div class="comments">
+                                        ${comment.replies.map(reply => `
+                                            <div class="comment-card" style="background: rgba(30, 30, 30, 0.7);">
+                                                <div class="comment-header">
+                                                    <div class="comment-author">
+                                                        <div class="avatar">${reply.author.charAt(0)}</div>
+                                                        <div>
+                                                            <div>${reply.author} ${reply.author === 'Moren' ? '<span class="admin-badge">管理员</span>' : ''}</div>
+                                                            <div class="comment-time">${reply.timestamp}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="comment-actions">
+                                                        <div class="action-btn like-btn ${isReplyLikedByCurrentUser(topic.id, comment.id, reply.id) ? 'active' : ''}" onclick="likeReply(${topic.id}, ${comment.id}, ${reply.id})">
+                                                            <i class="fas fa-heart"></i>
+                                                            <span>${reply.likes}</span>
+                                                        </div>
+                                                        <div class="action-btn report-btn" onclick="showReportModal('reply', ${topic.id}, ${comment.id}, ${reply.id})">
+                                                            <i class="fas fa-flag"></i>
+                                                        </div>
+                                                        ${DB.currentUser && (DB.currentUser.username === reply.author || DB.currentUser.isAdmin) ? `
+                                                            <div class="action-btn" onclick="deleteReply(${topic.id}, ${comment.id}, ${reply.id})">
+                                                                <i class="fas fa-trash"></i>
+                                                            </div>
+                                                        ` : ''}
+                                                    </div>
+                                                </div>
+                                                <div class="comment-content">
+                                                    ${reply.content}
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                                
+                                <div class="comment-form" style="margin-top: 15px;">
+                                    <div class="form-group">
+                                        <input type="text" id="reply-${comment.id}" class="form-control" placeholder="回复 ${comment.author}..." ${!DB.currentUser ? 'disabled' : ''}>
+                                    </div>
+                                    <button class="btn btn-outline" onclick="addReply(${topic.id}, ${comment.id})" ${!DB.currentUser ? 'disabled' : ''}>回复</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            document.querySelector('main > section:first-child').classList.add('hidden');
+            document.querySelector('.topics-section').classList.add('hidden');
+            DOM.topicDetail.classList.remove('hidden');
+            
+            // 添加评论事件监听
+            const submitCommentBtn = document.getElementById('submitCommentBtn');
+            if (submitCommentBtn) {
+                submitCommentBtn.addEventListener('click', () => addComment(topicId));
+            }
+        }
+
+        // 检查当前用户是否点赞过评论
+        function isCommentLikedByCurrentUser(topicId, commentId) {
+            if (!DB.currentUser) return false;
+            const key = `${topicId}-${commentId}`;
+            return DB.likes.comments[key] && DB.likes.comments[key].includes(DB.currentUser.username);
+        }
+
+        // 检查当前用户是否点赞过回复
+        function isReplyLikedByCurrentUser(topicId, commentId, replyId) {
+            if (!DB.currentUser) return false;
+            const key = `${topicId}-${commentId}-${replyId}`;
+            return DB.likes.replies[key] && DB.likes.replies[key].includes(DB.currentUser.username);
+        }
+
+        // 添加评论
+        function addComment(topicId) {
+            if (!DB.currentUser) {
+                showNotification('请先登录');
+                showAuthModal('login');
+                return;
+            }
+            
+            const commentContent = document.getElementById('commentContent').value.trim();
+            if (!commentContent) {
+                showNotification('请输入评论内容');
+                return;
+            }
+            
+            const topic = DB.topics.find(t => t.id === topicId);
+            if (!topic) return;
+            
+            topic.comments.push({
+                id: Date.now(),
+                author: DB.currentUser.username,
+                authorId: DB.currentUser.username,
+                content: commentContent,
+                timestamp: new Date().toLocaleString(),
+                likes: 0,
+                likedBy: [],
+                replies: []
+            });
+            
+            document.getElementById('commentContent').value = '';
+            
+            // 触发评论更新事件
+            const event = new Event('commentUpdate');
+            window.dispatchEvent(event);
+            
+            // 同步数据
+            syncData();
+        }
+
+        // 添加回复
+        function addReply(topicId, commentId) {
+            if (!DB.currentUser) {
+                showNotification('请先登录');
+                showAuthModal('login');
+                return;
+            }
+            
+            const replyContent = document.getElementById(`reply-${commentId}`).value.trim();
+            if (!replyContent) {
+                showNotification('请输入回复内容');
+                return;
+            }
+            
+            const topic = DB.topics.find(t => t.id === topicId);
+            if (!topic) return;
+            
+            const comment = topic.comments.find(c => c.id === commentId);
+            if (!comment) return;
+            
+            comment.replies.push({
+                id: Date.now(),
+                author: DB.currentUser.username,
+                authorId: DB.currentUser.username,
+                content: replyContent,
+                timestamp: new Date().toLocaleString(),
+                likes: 0,
+                likedBy: []
+            });
+            
+            document.getElementById(`reply-${commentId}`).value = '';
+            
+            // 触发评论更新事件
+            const event = new Event('commentUpdate');
+            window.dispatchEvent(event);
+            
+            // 同步数据
+            syncData();
+        }
+
+        // 点赞话题
+        function likeTopic(topicId) {
+            if (!DB.currentUser) {
+                showNotification('请先登录');
+                showAuthModal('login');
+                return;
+            }
+            
+            const topic = DB.topics.find(t => t.id === topicId);
+            if (!topic) return;
+            
+            // 检查用户是否已经点赞
+            if (topic.likedBy.includes(DB.currentUser.username)) {
+                showNotification('您已经点过赞了');
+                return;
+            }
+            
+            topic.likes++;
+            topic.likedBy.push(DB.currentUser.username);
+            
+            if (document.querySelector('.topic-detail')) {
+                renderTopicDetail(topicId);
+            } else {
+                renderTopics();
+            }
+            
+            // 更新我的页面
+            if (document.getElementById('profile-page').classList.contains('active')) {
+                renderProfilePage();
+            }
+            
+            // 同步数据
+            syncData();
+        }
+
+        // 点赞评论
+        function likeComment(topicId, commentId) {
+            if (!DB.currentUser) {
+                showNotification('请先登录');
+                showAuthModal('login');
+                return;
+            }
+            
+            const topic = DB.topics.find(t => t.id === topicId);
+            if (!topic) return;
+            
+            const comment = topic.comments.find(c => c.id === commentId);
+            if (!comment) return;
+            
+            // 检查用户是否已经点赞
+            if (comment.likedBy.includes(DB.currentUser.username)) {
+                showNotification('您已经点过赞了');
+                return;
+            }
+            
+            comment.likes++;
+            comment.likedBy.push(DB.currentUser.username);
+            renderTopicDetail(topicId);
+            
+            // 同步数据
+            syncData();
+        }
+
+        // 点赞回复
+        function likeReply(topicId, commentId, replyId) {
+            if (!DB.currentUser) {
+                showNotification('请先登录');
+                showAuthModal('login');
+                return;
+            }
+            
+            const topic = DB.topics.find(t => t.id === topicId);
+            if (!topic) return;
+            
+            const comment = topic.comments.find(c => c.id === commentId);
+            if (!comment) return;
+            
+            const reply = comment.replies.find(r => r.id === replyId);
+            if (!reply) return;
+            
+            // 检查用户是否已经点赞
+            if (reply.likedBy.includes(DB.currentUser.username)) {
+                showNotification('您已经点过赞了');
+                return;
+            }
+            
+            reply.likes++;
+            reply.likedBy.push(DB.currentUser.username);
+            renderTopicDetail(topicId);
+            
+            // 同步数据
+            syncData();
+        }
+
+        // 显示举报模态框
+        let currentReport = { type: '', topicId: null, commentId: null, replyId: null };
+        function showReportModal(type, topicId, commentId = null, replyId = null) {
+            if (!DB.currentUser) {
+                showNotification('请先登录');
+                showAuthModal('login');
+                return;
+            }
+            
+            currentReport = { type, topicId, commentId, replyId };
+            DOM.reportModal.classList.add('active');
+            generateCaptcha();
+            
+            // 检查举报限制
+            checkReportLimit();
+        }
+
+        // 检查举报限制
+        function checkReportLimit() {
+            if (!DB.currentUser) return;
+            
+            const now = Date.now();
+            const oneDay = 24 * 60 * 60 * 1000; // 24小时
+            
+            // 获取被举报内容的ID
+            let reportedContentId = '';
+            if (currentReport.type === 'topic') {
+                reportedContentId = `topic_${currentReport.topicId}`;
+            } else if (currentReport.type === 'comment') {
+                reportedContentId = `comment_${currentReport.topicId}_${currentReport.commentId}`;
+            } else if (currentReport.type === 'reply') {
+                reportedContentId = `reply_${currentReport.topicId}_${currentReport.commentId}_${currentReport.replyId}`;
+            }
+            
+            // 检查今天是否已经举报过该内容
+            const todayReports = DB.reports.filter(report => 
+                report.reporter === DB.currentUser.username && 
+                report.reportedContentId === reportedContentId && 
+                (now - new Date(report.timestamp).getTime()) < oneDay
+            );
+            
+            if (todayReports.length > 0) {
+                DOM.reportLimitMessage.textContent = '您今天已经举报过该内容，请明天再试';
+                DOM.submitReportBtn.disabled = true;
+            } else {
+                DOM.reportLimitMessage.textContent = '';
+                DOM.submitReportBtn.disabled = false;
+            }
+        }
+
+        // 提交举报
+        function submitReport() {
+            const reportType = document.getElementById('reportType').value;
+            const description = document.getElementById('reportDescription').value.trim();
+            const userCaptcha = document.getElementById('reportCaptcha').value.trim().toUpperCase();
+            const realCaptcha = DOM.captchaDisplay.textContent;
+            
+            // 验证验证码
+            if (userCaptcha !== realCaptcha) {
+                showNotification('验证码错误，请重新输入');
+                generateCaptcha();
+                return;
+            }
+            
+            if (!description) {
+                showNotification('请填写举报原因');
+                return;
+            }
+            
+            // 获取被举报内容的ID
+            let reportedContentId = '';
+            if (currentReport.type === 'topic') {
+                reportedContentId = `topic_${currentReport.topicId}`;
+            } else if (currentReport.type === 'comment') {
+                reportedContentId = `comment_${currentReport.topicId}_${currentReport.commentId}`;
+            } else if (currentReport.type === 'reply') {
+                reportedContentId = `reply_${currentReport.topicId}_${currentReport.commentId}_${currentReport.replyId}`;
+            }
+            
+            const report = {
+                type: reportType,
+                description,
+                reporter: DB.currentUser.username,
+                reportedContentId: reportedContentId,
+                timestamp: new Date().toISOString()
+            };
+            
+            // 添加到举报记录
+            DB.reports.push(report);
+            
+            // 清除表单
+            document.getElementById('reportDescription').value = '';
+            document.getElementById('reportCaptcha').value = '';
+            
+            DOM.reportModal.classList.remove('active');
+            showNotification('举报已提交，管理员会尽快处理！');
+            
+            // 同步数据
+            syncData();
+        }
+
+        // 删除话题
+        function deleteTopic(topicId) {
+            if (!DB.currentUser || !DB.currentUser.isAdmin) {
+                showNotification('权限不足');
+                return;
+            }
+            
+            if (confirm('确定要删除此话题吗？')) {
+                DB.topics = DB.topics.filter(t => t.id !== topicId);
+                backToHome();
+                
+                // 更新我的页面
+                if (document.getElementById('profile-page').classList.contains('active')) {
+                    renderProfilePage();
+                }
+                
+                // 同步数据
+                syncData();
+            }
+        }
+
+        // 删除评论
+        function deleteComment(topicId, commentId) {
+            if (!DB.currentUser) {
+                showNotification('请先登录');
+                return;
+            }
+            
+            const topic = DB.topics.find(t => t.id === topicId);
+            if (!topic) return;
+            
+            const comment = topic.comments.find(c => c.id === commentId);
+            if (!comment) return;
+            
+            if (DB.currentUser.username !== comment.author && !DB.currentUser.isAdmin) {
+                showNotification('权限不足');
+                return;
+            }
+            
+            if (confirm('确定要删除此评论吗？')) {
+                topic.comments = topic.comments.filter(c => c.id !== commentId);
+                renderTopicDetail(topicId);
+                
+                // 同步数据
+                syncData();
+            }
+        }
+
+        // 删除回复
+        function deleteReply(topicId, commentId, replyId) {
+            if (!DB.currentUser) {
+                showNotification('请先登录');
+                return;
+            }
+            
+            const topic = DB.topics.find(t => t.id === topicId);
+            if (!topic) return;
+            
+            const comment = topic.comments.find(c => c.id === commentId);
+            if (!comment) return;
+            
+            const reply = comment.replies.find(r => r.id === replyId);
+            if (!reply) return;
+            
+            if (DB.currentUser.username !== reply.author && !DB.currentUser.isAdmin) {
+                showNotification('权限不足');
+                return;
+            }
+            
+            if (confirm('确定要删除此回复吗？')) {
+                comment.replies = comment.replies.filter(r => r.id !== replyId);
+                renderTopicDetail(topicId);
+                
+                // 同步数据
+                syncData();
+            }
+        }
+
+        // 返回首页
+        function backToHome() {
+            document.querySelector('main > section:first-child').classList.remove('hidden');
+            document.querySelector('.topics-section').classList.remove('hidden');
+            DOM.topicDetail.classList.add('hidden');
+            renderTopics();
+            showPage('home');
+        }
+
+        // 更新UI状态
+        function updateUI() {
+            if (DB.currentUser) {
+                // 获取用户等级信息
+                const levelInfo = getUserLevelInfo(DB.currentUser);
+                
+                DOM.userActions.innerHTML = `
+                    <div class="user-info">
+                        <div class="avatar">${DB.currentUser.username.charAt(0)}</div>
+                        <div>${DB.currentUser.username} ${DB.currentUser.isAdmin ? '<span class="admin-badge">管理员</span>' : ''}</div>
+                        ${levelInfo ? `<span class="level-badge ${levelInfo.color}">${levelInfo.name} Lv.${levelInfo.level}</span>` : ''}
+                    </div>
+                    <button class="btn checkin-btn" onclick="checkIn()" id="checkinBtn">每日签到</button>
+                    <button class="btn btn-outline" onclick="logout()">退出</button>
+                `;
+                
+                DOM.createTopicForm.classList.remove('hidden');
+                
+                // 检查今天是否已签到
+                const today = new Date().toLocaleDateString();
+                const checkinBtn = document.getElementById('checkinBtn');
+                if (checkinBtn) {
+                    if (DB.checkins[DB.currentUser.username] && DB.checkins[DB.currentUser.username].includes(today)) {
+                        checkinBtn.disabled = true;
+                        checkinBtn.textContent = '今日已签到';
+                    }
+                }
+            } else {
+                DOM.userActions.innerHTML = `
+                    <button class="btn btn-outline" id="loginBtn">登录</button>
+                    <button class="btn btn-primary" id="registerBtn">注册</button>
+                `;
+                
+                DOM.createTopicForm.classList.add('hidden');
+                
+                // 重新绑定事件
+                document.getElementById('loginBtn').addEventListener('click', () => showAuthModal('login'));
+                document.getElementById('registerBtn').addEventListener('click', () => showAuthModal('register'));
+            }
+        }
+
+        // 页面加载动画
+        window.addEventListener('load', () => {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+
+        // 添加投票功能（示例）
+        function addVote(topicId) {
+            const topic = DB.topics.find(t => t.id === topicId);
+            if (!topic || !topic.votes || topic.votes.length === 0) return;
+            
+            if (!DB.currentUser) {
+                showNotification('请先登录');
+                showAuthModal('login');
+                return;
+            }
+            
+            // 这里实现投票逻辑
+            showNotification('投票功能已触发！');
+        }
+    </script>
+</body>
+</html>
